@@ -176,3 +176,5 @@ public class Satellite {
     }
 
 }
+
+// siivotaan
