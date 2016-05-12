@@ -5,33 +5,36 @@ import java.util.*;
 public class Satellite {
 
     private String id;
-    private double x;
-    private double y;
-    private double z;
+    private final Point point;
+
     private List<Satellite> yhteydet;
 
     public Satellite(String id, double x, double y, double z) {
         this.id = id;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.point = new Point(x, y, z);
+
         this.yhteydet = new ArrayList<>();
+
     }
 
     public String getID() {
         return this.id;
     }
 
+    public Point getPoint() {
+        return this.point;
+    }
+
     public Double getX() {
-        return this.x;
+        return this.point.getX();
     }
 
     public Double getY() {
-        return this.y;
+        return this.point.getY();
     }
 
     public Double getZ() {
-        return this.z;
+        return this.point.getZ();
     }
 
     public String getYhteydet() {
@@ -42,12 +45,12 @@ public class Satellite {
             i++;
         }
         return "" + sb;
-        
+
     }
 
     @Override
     public String toString() {
-        return this.id + ", [" + this.x + "," + this.y + ", " + this.z + "]";
+        return this.id + ", [" + this.getX() + "," + this.getY() + ", " + this.getZ() + "]";
     }
 
     public void yhteysMahdollinen(List<Satellite> satelliitit) {
@@ -91,20 +94,15 @@ public class Satellite {
     }
 
     public boolean canCommunicateWith(Satellite otherSatellite) {
-        return !hasEarthBetween(otherSatellite);
-        // Satelliitit leikkaava suora: ParametrisizedLine getLine(Satellite otherSatellite)
-        // diskrimanantti
-        // jos d <0 return true
-        // else laske leikkauspisteet maan kanssa
-        // jos leikkauspistet välissä --> false
-        // else true
+        boolean isOtherSatellite = !this.equals(otherSatellite);
+        return !hasEarthBetween(otherSatellite) && isOtherSatellite;
     }
 
     public boolean hasEarthBetween(Satellite otherSatellite) {
         // Lasketaan suuntavektorit:
-        double s_i = this.x - otherSatellite.getX();
-        double s_j = this.y - otherSatellite.getY();
-        double s_k = this.z - otherSatellite.getZ();
+        double s_i = this.getX() - otherSatellite.getX();
+        double s_j = this.getY() - otherSatellite.getY();
+        double s_k = this.getZ() - otherSatellite.getZ();
 
         // Leikkauspisteiden yhtälö on muotoa at^2+bt+c=0. Ratkaistaan vakiot a, b, c:
         double a = s_i * s_i + s_j * s_j + s_k * s_k;
@@ -119,59 +117,48 @@ public class Satellite {
         if (discriminant < 0) {
             return false;
         }
-        
+
         // Ratkaistaan parametrimuotoisen yhtälön parametrit:
         double t_0 = (-b + Math.sqrt(discriminant)) / (2 * a);
         double t_1 = (-b - Math.sqrt(discriminant)) / (2 * a);
-        
+
         // Leikkauspisteet: sijoitetaan t0, t1 parametrimuotoon:
-        double x_0 = this.x + t_0 * s_i;
-        double y_0 = this.y + t_0 * s_j;
-        double z_0 = this.z + t_0 * s_k;
+        Point interceptPoint0 = getInterception(this.point, t_0, s_i, s_j, s_k);
+        Point interceptPoint1 = getInterception(this.point, t_1, s_i, s_j, s_k);
 
-        double x_1 = this.x + t_1 * s_i;
-        double y_1 = this.y + t_1 * s_j;
-        double z_1 = this.z + t_1 * s_k;
+        // Leikkauspisteiden etäisyys satelliitteihin
+        double distFromThisToPoint0 = distanceBetweenPoints(this.point, interceptPoint0);
+        double distFromThisToPoint1 = distanceBetweenPoints(this.point, interceptPoint1);
 
-        // leikkauspisteiden etäisyys janan päätepisteisiin
-        double distanceToPoint1 = distanceToCoordinate(x_0, y_0, z_0);
-        double d0this = Math.sqrt(Math.pow(this.x - x_0, 2)
-                + Math.pow(this.y - y_0, 2)
-                + Math.pow(this.z - z_0, 2));
-        double d1this = Math.sqrt(Math.pow(this.x - x_1, 2)
-                + Math.pow(this.y - y_1, 2)
-                + Math.pow(this.z - z_1, 2));
+        double distFromOtherToPoint0 = distanceBetweenPoints(otherSatellite.point, interceptPoint0);
+        double distFromOtherToPoint1 = distanceBetweenPoints(otherSatellite.point, interceptPoint1);
 
-        double d0s = Math.sqrt(Math.pow(otherSatellite.getX() - x_0, 2)
-                + Math.pow(otherSatellite.getY() - y_0, 2)
-                + Math.pow(otherSatellite.getZ() - z_0, 2));
-        double d1s = Math.sqrt(Math.pow(otherSatellite.getX() - x_1, 2)
-                + Math.pow(otherSatellite.getY() - y_1, 2)
-                + Math.pow(otherSatellite.getZ() - z_1, 2));
-
-            //Jos leikkauspisteet yli janan mitan päässä jommasta kummasta
+        //Jos leikkauspisteet yli janan mitan päässä jommasta kummasta
         //janan päätepisteestä, yhteys pelaa.
-        double dJana = distanceTo(otherSatellite);
-        //System.out.println("Djana: "+dJana+" d0t: "+d0this+" d1t: "+d1this+" d0s: "+d0s+" d1s: "+d1s);
-        if (Math.max(d0this, d1this) > dJana || Math.max(d0s, d1s) > dJana) {
+        double distBetweenSatellites = distanceBetweenSatellites(this, otherSatellite);
+
+        if (Math.max(distFromThisToPoint0, distFromThisToPoint1) > distBetweenSatellites
+                || Math.max(distFromOtherToPoint0, distFromOtherToPoint1) > distBetweenSatellites) {
             return false;
         }
-
         return true;
     }
 
-    public double distanceTo(Satellite otherSatellite) {
-        return distanceToCoordinate(otherSatellite.getX(),otherSatellite.getY(), otherSatellite.getZ());
-//        double distance = Math.sqrt(Math.pow(this.x - otherSatellite.getX(), 2)
-//                + Math.pow(this.y - otherSatellite.getY(), 2)
-//                + Math.pow(this.z - otherSatellite.getZ(), 2));
-//        return distance;
+    private Point getInterception(Point p, double t, double s_i, double s_j, double s_k) {
+        double x_0 = p.getX() + t * s_i;
+        double y_0 = p.getY() + t * s_j;
+        double z_0 = p.getZ() + t * s_k;
+        return new Point(x_0, y_0, z_0);
     }
-    
-    public double distanceToCoordinate(double x, double y, double z) {
-        double distance = Math.sqrt(Math.pow(this.x - x, 2)
-                + Math.pow(this.y - y, 2)
-                + Math.pow(this.z - z, 2));
+
+    private static double distanceBetweenSatellites(Satellite sat1, Satellite sat2) {
+        return distanceBetweenPoints(sat1.point, sat2.point);
+    }
+
+    private static double distanceBetweenPoints(Point p_1, Point p_2) {
+        double distance = Math.sqrt(Math.pow(p_1.getX() - p_2.getX(), 2)
+                + Math.pow(p_1.getY() - p_2.getY(), 2)
+                + Math.pow(p_1.getZ() - p_2.getZ(), 2));
         return distance;
     }
 
