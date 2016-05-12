@@ -2,95 +2,65 @@ package satelliittiprojekti;
 
 import java.util.*;
 
-public class Satellite {
+public class Satellite implements SpaceObject {
 
-    private String id;
+    private final String id;
     private final Point point;
-
-    private List<Satellite> yhteydet;
 
     public Satellite(String id, double x, double y, double z) {
         this.id = id;
         this.point = new Point(x, y, z);
-
-        this.yhteydet = new ArrayList<>();
-
     }
 
+    public Satellite(String id, Point point) {
+        this.id = id;
+        this.point = point;
+    }
+
+    @Override
     public String getID() {
         return this.id;
     }
 
+    @Override
     public Point getPoint() {
         return this.point;
     }
 
-    public Double getX() {
+    @Override
+    public double getX() {
         return this.point.getX();
     }
 
-    public Double getY() {
+    @Override
+    public double getY() {
         return this.point.getY();
     }
 
-    public Double getZ() {
+    @Override
+    public double getZ() {
         return this.point.getZ();
     }
 
-    public String getYhteydet() {
+    /*public String getConnectionsString(List<Satellite> satellites) {
+        List<Satellite> connectedSatellites = getConnectionsFor(satellites);
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        while (i < this.yhteydet.size()) {
-            sb.append(this.yhteydet.get(i).getID() + " ");
+        while (i < connectedSatellites.size()) {
+            sb.append(connectedSatellites.get(i).getID() + " ");
             i++;
         }
-        return "" + sb;
-
+        return sb.toString();
     }
 
-    @Override
-    public String toString() {
-        return this.id + ", [" + this.getX() + "," + this.getY() + ", " + this.getZ() + "]";
-    }
-
-    public void yhteysMahdollinen(List<Satellite> satelliitit) {
-
-        for (Satellite s : satelliitit) {
-            if (!hasEarthBetween(s) && !this.yhteydet.contains(s) && !this.getID().equals(s.getID())) {
-                this.yhteydet.add(s);
+    public List<Satellite> getConnectionsFor(List<Satellite> satellites) {
+        List<Satellite> connectedSatellites = new ArrayList<>();
+        for (Satellite s : satellites) {
+            if (s.canCommunicateWith(this)) {
+                connectedSatellites.add(s);
             }
         }
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 43 * hash + Objects.hashCode(this.id);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Satellite other = (Satellite) obj;
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
-    }
-
-    public void yhteysSignaaliinMahdollinen(List<Satellite> satelliitit) {
-        for (Satellite s : satelliitit) {
-            // System.out.println(keskipisteenEtaisyys(s));
-            if (!hasEarthBetween(s) && !this.yhteydet.contains(s) && !this.equals(s)) {
-                this.yhteydet.add(s);
-            }
-        }
+        return connectedSatellites;
     }
 
     public boolean canCommunicateWith(Satellite otherSatellite) {
@@ -136,15 +106,15 @@ public class Satellite {
         //Jos leikkauspisteet yli janan mitan päässä jommasta kummasta
         //janan päätepisteestä, yhteys pelaa.
         double distBetweenSatellites = distanceBetweenSatellites(this, otherSatellite);
-
         if (Math.max(distFromThisToPoint0, distFromThisToPoint1) > distBetweenSatellites
                 || Math.max(distFromOtherToPoint0, distFromOtherToPoint1) > distBetweenSatellites) {
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
-    private Point getInterception(Point p, double t, double s_i, double s_j, double s_k) {
+    private static Point getInterception(Point p, double t, double s_i, double s_j, double s_k) {
         double x_0 = p.getX() + t * s_i;
         double y_0 = p.getY() + t * s_j;
         double z_0 = p.getZ() + t * s_k;
@@ -161,5 +131,46 @@ public class Satellite {
                 + Math.pow(p_1.getZ() - p_2.getZ(), 2));
         return distance;
     }
+*/
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 43 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Satellite other = (Satellite) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+
+    /* @Override
+     public String toString() {
+     return this.id + ", [" + this.getX() + "," + this.getY() + ", " + this.getZ() + "]";
+     }
+
+     @Override
+     public double getX() {
+     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+     }
+
+     @Override
+     public double getY() {
+     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+     }
+
+     @Override
+     public double getZ() {
+     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+     }*/
 }
