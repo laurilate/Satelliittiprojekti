@@ -1,0 +1,27 @@
+package satelliittiprojekti;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class SignaaliMaasta extends Satelliitti{
+
+    public SignaaliMaasta(String asema, double x, double y, double z) {
+        super(asema, x, y, z);
+    }
+    
+    @Override
+    public void yhteysMahdollinen(List<Satelliitti> satelliitit){
+        super.yhteysMahdollinen(satelliitit);
+    }
+    
+    @Override
+    public List<Satelliitti> getYhteydet(){
+        return super.getYhteydet();
+    }
+
+
+}
+
+
+
