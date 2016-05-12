@@ -12,8 +12,9 @@ public class Main {
         System.out.println("Seed: " + puzzleData.getSeed());
 
         System.out.println("Startpoint yhteydet: "+SpaceCalculations.getConnectionsString(puzzleData.getStartPoint(), puzzleData.getSatellites()));
-        System.out.println(puzzleData.getEndPoint().toString());
+        System.out.println(SpaceCalculations.printSpaceObject(puzzleData.getStartPoint()));
         System.out.println("Endpoint yhteydet: "+SpaceCalculations.getConnectionsString(puzzleData.getEndPoint(), puzzleData.getSatellites()));
+        System.out.println(SpaceCalculations.printSpaceObject(puzzleData.getEndPoint()));
         System.out.println("------------------");
 
         for (SpaceObject satellite : puzzleData.getSatellites()) {

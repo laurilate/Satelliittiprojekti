@@ -23,8 +23,9 @@ public class FileParser {
                 String[] cols = row.split(",");
                 String rowHeader = cols[0];
                 if (rowHeader.equals("ROUTE")) {
-                    startPoint = new EarthBase("Start point", new Point(cols[1], cols[2], "0"));
-                    endPoint = new EarthBase("End point", new Point(cols[3], cols[4], "0"));
+                    startPoint = new EarthBase("Start point", new Point(cols[1], cols[2], "0.002"));
+                    endPoint = new EarthBase("End point", new Point(cols[3], cols[4], "0.002"));
+                    System.out.println("[..]"+cols[3]+" "+cols[4]);
                 } else {
                     Point point = new Point(cols[1], cols[2], cols[3]);
                     Satellite satellite = new Satellite(cols[0], point);
