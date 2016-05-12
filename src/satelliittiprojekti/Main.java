@@ -47,7 +47,7 @@ public class Main {
             String[] osat = rivi.split(",");
             int i = 0;
             laskuri++;
-            //System.out.println(osat[0]);
+            
             satelliitit.add(luoSatelliitti(osat[0], osat[1], osat[2], osat[3]));
 
         }
